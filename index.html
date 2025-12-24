@@ -284,7 +284,7 @@
 <body>
 
 <div id="app">
-    <audio id="bgm" loop preload="auto" src="https://ik.imagekit.io/foefnjeua/jazz-christmas-432315.mp3"></audio>
+    <audio id="bgm" loop preload="auto" autoplay src="https://ik.imagekit.io/foefnjeua/jazz-christmas-432315.mp3"></audio>
 
     <div id="snowflakes-container"></div>
     <div id="lights-container"></div>
@@ -418,6 +418,14 @@
         createSnowflakes();
         createLights();
         renderOrnaments();
+
+        // 음악 자동 재생 시도
+        bgm.play().then(() => {
+            musicBtn.classList.add('playing');
+            musicBtn.textContent = '🔊';
+        }).catch(e => {
+            console.log("브라우저 정책으로 인해 자동 재생이 차단되었습니다.", e);
+        });
     }
 
     // Snowflakes Generation
