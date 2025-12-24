@@ -1,0 +1,402 @@
+import React, { useState, useRef, useEffect } from 'react';
+
+export default function App() {
+  const [selectedOrnament, setSelectedOrnament] = useState(null);
+  const [clickedOrnaments, setClickedOrnaments] = useState(new Set());
+  // 이름을 김덕수 교장선생님으로 고정하고 입력 단계를 건너뛰도록 설정
+  const [userName] = useState('김덕수 교장선생님'); 
+  const [isNameEntered] = useState(true); 
+  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const [showGallery, setShowGallery] = useState(false); 
+  const [galleryViewLetter, setGalleryViewLetter] = useState(null); 
+  
+  const audioRef = useRef(null);
+  const letterCardRef = useRef(null); 
+
+  // Google Fonts & html2canvas 로드
+  useEffect(() => {
+    const link = document.createElement('link');
+    link.href = 'https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap'; // 명조체로 변경 (더 중후한 느낌)
+    link.rel = 'stylesheet';
+    document.head.appendChild(link);
+
+    const script = document.createElement('script');
+    script.src = 'https://html2canvas.hertzen.com/dist/html2canvas.min.js';
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      document.head.removeChild(link);
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  // 오디오 이벤트 리스너
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handlePlay = () => setIsMusicPlaying(true);
+    const handlePause = () => setIsMusicPlaying(false);
+    const handleError = (e) => console.log("Audio Error:", e);
+
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
+    audio.addEventListener('error', handleError);
+
+    return () => {
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('error', handleError);
+    };
+  }, []);
+
+  const toggleMusic = () => {
+    if (audioRef.current) {
+      if (audioRef.current.paused) {
+        audioRef.current.play().catch(error => console.log("Music play failed:", error));
+      } else {
+        audioRef.current.pause();
+      }
+    }
+  };
+
+  // 교장선생님을 위한 특별 메시지 (감동적이고 은유적인 톤으로 수정)
+  const principalMessages = [
+    `김덕수 교장선생님, 지난 시간 학교를 위해 쏟으신 열정에 깊이 감사드립니다. \n2026년은 무거운 책임감을 잠시 내려놓고, 그 빈 공간에 새로운 희망과 평안이 깃드는 한 해가 되시길 소망합니다. \n겨울이 지나 봄이 오듯, 선생님의 마음에도 따스한 휴식이 찾아오길 기도합니다. 🎍`,
+    
+    `김덕수 교장선생님, 수많은 결정 속에서 고뇌하셨을 그 마음을 헤아려봅니다. \n새해에는 선생님의 말씀이 길잡이가 되고, 선생님의 귀가 저희의 안식처가 되기를 기대해봅니다. \n서로의 작은 목소리에도 귀 기울일 때 피어나는 따뜻한 변화를 선생님과 함께 꿈꾸고 싶습니다. 👂`,
+    
+    `김덕수 교장선생님, 학교의 가장 높은 곳에서 든든한 버팀목이 되어주셔서 감사합니다. \n다가오는 해에는 선생님께서 비추시는 따뜻한 빛이 가장 낮은 곳까지 스며들어, 학교 전체가 온기로 가득 차는 기적 같은 한 해가 되길 기도합니다. \n선생님의 따스함이 곧 저희의 행복입니다. ☀️`,
+    
+    `김덕수 교장선생님, 선생님의 넓은 품 덕분에 올 한 해도 무사히 지나왔습니다. \n2026년에는 바다가 모든 강물을 품듯, 다양한 이야기들을 미소로 안아주시는 넉넉함 속에서 선생님 또한 더 큰 존경과 사랑을 받으시길 바랍니다. \n깊고 푸른 바다 같은 평온이 함께하길 빕니다. 🌊`,
+    
+    `김덕수 교장선생님, 그동안 정말 치열하게 달려오셨습니다. \n새해에는 조금 더 여유로운 발걸음으로 주변의 풍경도 둘러보시는 쉼이 있으셨으면 좋겠습니다. \n때로는 강함보다 부드러움이 더 큰 울림을 주듯, 선생님의 온화한 미소 한 번이 저희에게는 가장 큰 위로가 됩니다. 🍃`,
+    
+    `김덕수 교장선생님, 새해 복 많이 받으세요. \n보이지 않는 곳에서의 노고, 저희는 기억하고 있습니다. \n새해에는 타인의 시선보다 선생님 스스로의 마음에 귀 기울이며, 깊은 내면의 평화와 진정한 행복을 마주하는 소중한 시간들이 가득하시길 응원합니다. 🧘‍♂️`,
+    
+    `김덕수 교장선생님, 지난 1년 무대 위 주인공으로서 멋지게 이끌어주셨습니다. \n2026년에는 선생님과 함께하는 교직원, 학생들이 빛날 수 있도록 묵묵히 비춰주시는 은은한 달빛 같은 리더십으로 저희 곁에 머물러 주시길 소망합니다. \n함께 빛날 때 더 아름다운 우리 학교가 될 것입니다. 🌸`,
+    
+    `김덕수 교장선생님, 좋은 리더 곁에는 좋은 향기가 머문다고 합니다. \n교장선생님의 인품이 그윽한 향기가 되어 학교 곳곳에 배어들기를, 그리하여 선생님 곁에 머무는 것만으로도 행복해지는 2026년이 되기를 꿈꿔봅니다. \n선생님의 향기로 가득 찰 새해를 기대합니다. ✨`,
+    
+    `김덕수 교장선생님, 강함보다 더 큰 힘은 부드러움에 있다고 합니다. \n지난 한 해 강건하게 학교를 지키셨다면, 새해에는 커다란 나무 그늘처럼 누구나 찾아와 쉴 수 있는 넉넉하고 포근한 품이 되어주시길 기대합니다. \n선생님의 그늘 아래서 모두가 행복하길 바랍니다. 🌳`,
+    
+    `김덕수 교장선생님, 시간이 흐를수록 더 깊어지는 지혜를 존경합니다. \n고개 숙여 아이들의 눈높이를 맞춰주시는 선생님의 따뜻한 모습에서, 저희는 진정한 어른의 품격을 배웁니다. \n내년에도 그 따스함으로 저희를 감싸주세요. 🌾`,
+    
+    `김덕수 교장선생님, 차가운 머리보다 뜨거운 가슴이 사람을 움직인다고 하죠. \n교장선생님의 진심 어린 공감과 따뜻한 위로 한마디가 2026년 우리 학교를 더욱 사랑 넘치는 곳으로 만들 것입니다. \n마음과 마음이 닿는 감동의 한 해가 되길 소망합니다. 🔥`,
+    
+    `김덕수 교장선생님, 메리 크리스마스! 1년 동안 쌓아오신 수많은 업적들, 정말 수고 많으셨습니다. \n새해에는 그 결실을 함께 나누며 더 크게 웃는 기쁨을 누리시길 바랍니다. \n나눌수록 커지고, 비울수록 채워지는 행복의 비밀을 만끽하는 풍요로운 한 해 되세요. 🎁`
+  ];
+
+  const ornamentStyles = [
+    { color: 'rgba(255, 215, 0, 0.4)', glow: '#FFD700' },
+    { color: 'rgba(224, 255, 255, 0.4)', glow: '#E0FFFF' },
+    { color: 'rgba(255, 105, 180, 0.4)', glow: '#FF69B4' },
+    { color: 'rgba(127, 255, 212, 0.4)', glow: '#7FFFD4' },
+    { color: 'rgba(255, 165, 0, 0.4)', glow: '#FFA500' },
+    { color: 'rgba(221, 160, 221, 0.4)', glow: '#DDA0DD' },
+    { color: 'rgba(135, 206, 235, 0.4)', glow: '#87CEEB' },
+    { color: 'rgba(240, 128, 128, 0.4)', glow: '#F08080' },
+    { color: 'rgba(152, 251, 152, 0.4)', glow: '#98FB98' },
+    { color: 'rgba(216, 191, 216, 0.4)', glow: '#D8BFD8' },
+    { color: 'rgba(255, 218, 185, 0.4)', glow: '#FFDAB9' },
+    { color: 'rgba(240, 230, 140, 0.4)', glow: '#F0E68C' }
+  ];
+
+  const giftBoxColors = [
+    '#e74c3c', '#2ecc71', '#f1c40f', '#e67e22', 
+    '#3498db', '#9b59b6', '#ff7979', '#1abc9c',
+    '#ff6b81', '#16a085', '#2980b9', '#d63031'
+  ];
+
+  const ornamentPositions = [
+    { top: '16%', left: '50%' },
+    { top: '24%', left: '42%' },
+    { top: '26%', left: '58%' },
+    { top: '34%', left: '35%' },
+    { top: '36%', left: '65%' },
+    { top: '40%', left: '50%' },
+    { top: '48%', left: '28%' },
+    { top: '50%', left: '72%' },
+    { top: '54%', left: '40%' },
+    { top: '56%', left: '60%' },
+    { top: '64%', left: '32%' },
+    { top: '66%', left: '68%' }
+  ];
+
+  const handleOrnamentClick = (index) => {
+    setSelectedOrnament(index);
+    setClickedOrnaments(prev => new Set([...prev, index]));
+  };
+
+  const closeModal = () => {
+    setSelectedOrnament(null);
+  };
+
+  const openGallery = () => {
+    setShowGallery(true);
+    setGalleryViewLetter(null);
+  };
+
+  const closeGallery = () => {
+    setShowGallery(false);
+    setGalleryViewLetter(null);
+  };
+
+  const handleSaveImage = async () => {
+    if (!letterCardRef.current || !window.html2canvas) return;
+    try {
+      const canvas = await window.html2canvas(letterCardRef.current, {
+        scale: 2,
+        backgroundColor: null,
+        logging: false,
+        useCORS: true
+      });
+      const image = canvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.href = image;
+      link.download = `Letter_for_${userName}.png`;
+      link.click();
+    } catch (err) {
+      console.error("이미지 저장 실패:", err);
+      alert("이미지 저장 중 오류가 발생했어요.");
+    }
+  };
+
+  const GiftBox = ({ color }) => (
+    <div style={{
+      position: 'relative', width: '50%', height: '45%', display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'flex-end', filter: 'drop-shadow(0 4px 4px rgba(0,0,0,0.3))'
+    }}>
+      <div style={{
+        position: 'absolute', top: '10%', width: '110%', height: '25%', borderRadius: '4px', zIndex: 3,
+        boxShadow: '0 2px 4px rgba(0,0,0,0.2)', background: `linear-gradient(to right, ${color}, white 50%, ${color})`
+      }} />
+      <div style={{
+        position: 'absolute', top: '-15%', width: '40%', height: '25%', display: 'flex', justifyContent: 'center', zIndex: 4
+      }}>
+        <div style={{ width: '50%', height: '100%', background: '#ffeb3b', borderRadius: '50% 0 0 50%', transform: 'rotate(-10deg)' }} />
+        <div style={{ width: '50%', height: '100%', background: '#ffeb3b', borderRadius: '0 50% 50% 0', transform: 'rotate(10deg)' }} />
+         <div style={{ position: 'absolute', top: '20%', width: '20%', height: '80%', background: '#fdd835', borderRadius: '2px' }}/>
+      </div>
+      <div style={{
+        width: '100%', height: '75%', background: color, borderRadius: '0 0 4px 4px', position: 'relative',
+        boxShadow: 'inset 0 -5px 10px rgba(0,0,0,0.1)'
+      }}>
+        <div style={{ position: 'absolute', left: '50%', top: '0', transform: 'translateX(-50%)', width: '20%', height: '100%', background: '#ffeb3b' }} />
+      </div>
+    </div>
+  );
+
+  const Snowflake = ({ delay, duration, left, size }) => (
+    <div style={{
+        position: 'fixed', top: '-20px', left: `${left}%`, fontSize: `${size}px`, color: 'white', opacity: 0.8, pointerEvents: 'none',
+        animation: `fall ${duration}s linear infinite`, animationDelay: `${delay}s`, zIndex: 1, textShadow: '0 0 5px rgba(255,255,255,0.8)'
+      }}>❄</div>
+  );
+
+  return (
+    <div style={{
+      height: '100vh', width: '100vw',
+      backgroundImage: 'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url(https://i.imgur.com/ccQbw2H.png)', // 배경을 조금 더 어둡게 하여 글자 가독성 높임
+      backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
+      overflow: 'hidden', position: 'relative', fontFamily: "'Nanum Myeongjo', serif" // 폰트 변경
+    }}>
+      <style>{`
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+        @keyframes swing { 0%, 100% { transform: translateX(-50%) rotate(-3deg); } 50% { transform: translateX(-50%) rotate(3deg); } }
+        @keyframes sparkle { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(0.8); } }
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+      `}</style>
+
+      <audio ref={audioRef} loop preload="auto" src="https://ik.imagekit.io/foefnjeua/jazz-christmas-432315.mp3" />
+
+      {Array.from({ length: 50 }).map((_, i) => (
+        <Snowflake key={i} delay={Math.random() * 5} duration={Math.random() * 10 + 15} left={Math.random() * 100} size={Math.random() * 15 + 10} />
+      ))}
+
+      {/* 팝업 제거로 인한 바로가기 버튼 */}
+      <>
+        <button onClick={toggleMusic} style={{
+            position: 'absolute', top: '20px', right: '20px', zIndex: 100,
+            background: isMusicPlaying ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)',
+            border: '1px solid rgba(255, 255, 255, 0.6)', borderRadius: '50%', width: '40px', height: '40px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'white', backdropFilter: 'blur(5px)'
+          }}>
+          {isMusicPlaying ? '🔊' : '🔇'}
+        </button>
+        {clickedOrnaments.size > 0 && (
+          <button onClick={openGallery} style={{
+              position: 'absolute', bottom: '30px', right: '30px', zIndex: 90,
+              background: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.4)',
+              color: 'white', borderRadius: '50px', padding: '10px 20px', fontSize: '1em', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
+            }}>
+            💌 편지함 열기
+          </button>
+        )}
+      </>
+
+      {/* 이름 입력 팝업 제거됨 */}
+
+      <div style={{
+        position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%',
+        padding: '0 10px', boxSizing: 'border-box', filter: (!showGallery) ? 'none' : 'blur(5px)', transition: 'filter 0.5s ease'
+      }}>
+        <div style={{ flexShrink: 0, marginBottom: '0', textAlign: 'center', zIndex: 40, marginTop: '20px' }}>
+          <h1 style={{
+            fontSize: 'clamp(1.8em, 4vw, 2.5em)', fontWeight: 700, color: '#f3f4f6',
+            textShadow: '0 4px 12px rgba(0, 0, 0, 0.8)', margin: '0 0 10px 0', letterSpacing: '2px'
+          }}>
+             2026, 새로운 시작
+          </h1>
+          <p style={{
+            fontSize: 'clamp(0.9em, 2vw, 1.1em)', color: 'rgba(255, 255, 255, 0.9)',
+            textShadow: '0 2px 4px rgba(0, 0, 0, 0.8)', margin: '0', fontWeight: '400'
+          }}>
+            오너먼트를 눌러 {userName}께 드리는 지혜와 축복을 확인하세요
+          </p>
+        </div>
+
+        <div style={{
+          position: 'relative', height: '80vh', aspectRatio: '0.7', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', marginTop: '-1vh'
+        }}>
+          {ornamentPositions.map((pos, index) => {
+            const style = ornamentStyles[index];
+            const isClicked = clickedOrnaments.has(index);
+            const boxColor = giftBoxColors[index % giftBoxColors.length];
+            if (isClicked) return null;
+            return (
+              <div key={index} onClick={() => handleOrnamentClick(index)}
+                style={{
+                  position: 'absolute', top: pos.top, left: pos.left, width: 'clamp(55px, 9vh, 80px)', height: 'clamp(55px, 9vh, 80px)',
+                  borderRadius: '50%', cursor: 'pointer', transition: 'all 0.3s ease',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', transform: 'translateX(-50%)', zIndex: 30,
+                  animation: `swing 4s ease-in-out infinite ${index * 0.3}s`
+                }}
+              >
+                {/* 오너먼트 디자인 유지 */}
+                 <div style={{
+                   width: '100%', height: '100%', borderRadius: '50%',
+                   background: `radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9) 0%, ${style.color} 40%, rgba(0,0,0,0.4) 100%)`,
+                   boxShadow: `0 0 15px ${style.glow}`
+                 }}></div>
+                 <div style={{ position: 'absolute', top: '-15%', width: '10%', height: '20%', background: '#b8860b', zIndex: -1 }}></div>
+                 <div style={{ position: 'absolute', width: '60%', height: '60%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <GiftBox color={boxColor} />
+                 </div>
+              </div>
+            );
+          })}
+          {/* 전구 효과 */}
+          {Array.from({ length: 40 }).map((_, i) => {
+            const top = 15 + Math.random() * 65; 
+            const widthSpread = (top - 10) * 0.7;
+            const left = 50 + (Math.random() * widthSpread - widthSpread/2);
+            return <div key={`light-${i}`} style={{
+              position: 'absolute', left: `${left}%`, top: `${top}%`, width: '4px', height: '4px',
+              borderRadius: '50%', background: '#fff', boxShadow: `0 0 8px #fff`,
+              animation: `sparkle ${1.5 + Math.random()}s ease-in-out infinite ${Math.random()}s`, zIndex: 20, opacity: 0.8
+            }}/>
+          })}
+        </div>
+      </div>
+
+      {/* 메시지 모달 */}
+      {selectedOrnament !== null && (
+        <div onClick={closeModal} style={{
+            position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0, 0, 0, 0.85)', backdropFilter: 'blur(5px)',
+            display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 100, padding: '20px'
+          }}>
+          <div onClick={(e) => e.stopPropagation()} style={{
+              position: 'relative', background: '#fffcf5', padding: '40px 30px', borderRadius: '4px', maxWidth: '500px', width: '100%',
+              textAlign: 'center', color: '#1a1a1a', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              animation: 'slideIn 0.5s ease', border: '1px solid #dcdcdc'
+            }}>
+            <div style={{ fontSize: '2em', marginBottom: '15px', color: '#b8860b' }}>🎍</div>
+            <h2 style={{ fontSize: '1.4em', fontWeight: 700, marginBottom: '25px', color: '#1a1a1a', borderBottom: '1px solid #eee', paddingBottom: '15px' }}>
+              To. {userName}
+            </h2>
+            <div style={{
+                fontSize: '1.15em', lineHeight: '1.8', marginBottom: '30px', color: '#374151',
+                whiteSpace: 'pre-line', textAlign: 'left', wordBreak: 'keep-all', padding: '10px'
+              }}>
+              {principalMessages[selectedOrnament]}
+            </div>
+            <button onClick={closeModal} style={{
+                background: '#1a1a1a', color: 'white', border: 'none', padding: '12px 30px', borderRadius: '0',
+                fontSize: '1em', cursor: 'pointer', transition: 'all 0.2s ease', fontFamily: "'Nanum Myeongjo', serif"
+              }}>
+              마음에 새기겠습니다 🙏
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 갤러리 모달 */}
+      {showGallery && (
+        <div style={{
+            position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0, 0, 0, 0.95)',
+            display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 200, padding: '20px'
+          }}>
+          {galleryViewLetter === null ? (
+            <div style={{
+                background: '#fff', padding: '30px', borderRadius: '4px', width: '100%', maxWidth: '600px', maxHeight: '80vh', overflowY: 'auto',
+                display: 'flex', flexDirection: 'column', alignItems: 'center'
+              }}>
+              <h2 style={{ marginBottom: '20px', color: '#1a1a1a', fontFamily: "'Nanum Myeongjo', serif" }}>{userName}의 서재</h2>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '15px', width: '100%' }}>
+                {[...clickedOrnaments].map((idx) => (
+                  <div key={idx} onClick={() => setGalleryViewLetter(idx)} style={{
+                      background: '#f3f4f6', padding: '20px', cursor: 'pointer', textAlign: 'center', border: '1px solid #e5e7eb',
+                      transition: 'all 0.2s', fontFamily: "'Nanum Myeongjo', serif"
+                    }}
+                    onMouseEnter={e => {e.currentTarget.style.background = '#e5e7eb';}}
+                    onMouseLeave={e => {e.currentTarget.style.background = '#f3f4f6';}}
+                  >
+                    <div style={{ fontSize: '1.5em', marginBottom: '5px' }}>📜</div>
+                    <span style={{ fontSize: '0.9em', color: '#4b5563' }}>{idx + 1}번째 지혜</span>
+                  </div>
+                ))}
+              </div>
+              <button onClick={closeGallery} style={{ marginTop: '25px', padding: '10px 30px', border: '1px solid #d1d5db', background: 'white', cursor: 'pointer' }}>
+                닫기
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+              <div ref={letterCardRef} style={{
+                  background: '#fffcf5', padding: '50px', maxWidth: '450px', width: '100%',
+                  boxShadow: '0 20px 40px rgba(0,0,0,0.5)', position: 'relative', border: '1px solid #dcdcdc'
+                }}>
+                <div style={{ position: 'absolute', top: '20px', right: '20px', fontSize: '1.5em', opacity: 0.5 }}>🎍</div>
+                <h3 style={{ color: '#1a1a1a', marginBottom: '30px', borderBottom: '1px solid #1a1a1a', paddingBottom: '15px', textAlign: 'center', fontFamily: "'Nanum Myeongjo', serif", fontSize: '1.5em' }}>
+                  To. {userName}
+                </h3>
+                <div style={{ whiteSpace: 'pre-line', lineHeight: '2', color: '#374151', fontSize: '1.1em', fontFamily: "'Nanum Myeongjo', serif', textAlign: 'justify'" }}>
+                  {principalMessages[galleryViewLetter]}
+                </div>
+                <div style={{ marginTop: '40px', textAlign: 'right', color: '#6b7280', fontSize: '0.9em', fontStyle: 'italic' }}>
+                  2025년 겨울, 교장선생님을 존경하는 마음을 담아
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                <button onClick={handleSaveImage} style={{
+                    padding: '12px 25px', border: 'none', background: '#1a1a1a', color: 'white', cursor: 'pointer', fontFamily: "'Nanum Myeongjo', serif"
+                  }}>
+                  이미지로 저장 📸
+                </button>
+                <button onClick={() => setGalleryViewLetter(null)} style={{
+                    padding: '12px 25px', border: '1px solid #fff', background: 'transparent', color: 'white', cursor: 'pointer', fontFamily: "'Nanum Myeongjo', serif"
+                  }}>
+                  목록으로
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
